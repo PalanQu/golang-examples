@@ -14,7 +14,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
 	pb "github.com/mycodesmells/golang-examples/grpc/proto/service"
@@ -34,14 +33,10 @@ func main() {
 }
 
 func runGRPC(lis net.Listener) {
-	creds, err := credentials.NewServerTLSFromFile("cmd/server/server-cert.pem", "cmd/server/server-key.pem")
-	if err != nil {
-		log.Fatalf("Failed to setup tls: %v", err)
-	}
-
+	// creds, err := credentials.NewServerTLSFromFile("cmd/server/server-cert.pem", "cmd/server/server-key.pem")
 	server := grpc.NewServer(
-		grpc.Creds(creds),
-		// grpc.UnaryInterceptor(AuthInterceptor),
+	// grpc.Creds(creds),
+	// grpc.UnaryInterceptor(AuthInterceptor),
 	)
 	pb.RegisterSimpleServerServer(server, NewServer())
 
@@ -53,11 +48,9 @@ func runHTTP(clientAddr string) {
 	runtime.HTTPError = CustomHTTPError
 
 	addr := ":6001"
-	creds, err := credentials.NewClientTLSFromFile("cmd/server/server-cert.pem", "")
-	if err != nil {
-		log.Fatalf("gateway cert load error: %s", err)
-	}
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(creds)}
+	// creds, err := credentials.NewClientTLSFromFile("cmd/server/server-cert.pem", "")
+	// opts := []grpc.DialOption{grpc.WithTransportCredentials(creds)}
+	opts := []grpc.DialOption{grpc.WithInsecure()}
 	mux := runtime.NewServeMux()
 	if err := pb.RegisterSimpleServerHandlerFromEndpoint(context.Background(), mux, clientAddr, opts); err != nil {
 		log.Fatalf("failed to start HTTP server: %v", err)

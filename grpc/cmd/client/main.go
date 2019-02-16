@@ -4,21 +4,14 @@ import (
 	"context"
 	"log"
 
-	gw "github.com/johanbrandhorst/grpc-wasm"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 
 	pb "github.com/mycodesmells/golang-examples/grpc/proto/service"
 )
 
 func main() {
-	creds, err := credentials.NewClientTLSFromFile("cmd/server/server-cert.pem", "")
-	if err != nil {
-		log.Fatalf("cert load error: %s", err)
-	}
-
-	conn, err := gw.Dial("localhost:6000", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial("localhost:6000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to start gRPC connection: %v", err)
 	}
@@ -29,7 +22,7 @@ func main() {
 	md := metadata.Pairs("token", "valid-token")
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
-	_, err = client.CreateUser(ctx, &pb.CreateUserRequest{User: &pb.User{Username: "slomek", Role: "joker"}}, grpc.With)
+	_, err = client.CreateUser(ctx, &pb.CreateUserRequest{User: &pb.User{Username: "slomek", Role: "joker"}})
 	if err != nil {
 		log.Fatalf("Failed to create user: %v", err)
 	}
